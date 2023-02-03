@@ -44,4 +44,13 @@ yargs.command({
         console.log('Row ' + param.row + ' has been deleted.');
     }
 })
+
+yargs.command({
+    command: 'read',
+    describe: 'Read a line',
+    handler: function(param){
+        const notes = fs.readFileSync('note.txt').toString().split('\n')[param['_'][1]];
+        console.log(notes);
+    }
+})
 yargs.parse();
