@@ -1,5 +1,3 @@
-const getNotes = function(){
-    return 'Your Notes....';
-}
+const getNotes = () => 'Your Notes....';
 
 module.exports.getNotes = getNotes;
