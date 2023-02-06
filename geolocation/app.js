@@ -78,14 +78,14 @@ const forecast = (lat, long, callback) => {
 
 
 const weather = (city) => {
-    geocode(city, (error, data) => {
+    geocode(city, (error, {latitude, longitude, location}) => {
         if(error) {
             console.log(error)
         }else{
-            forecast(data.latitude, data.longitude, (error, forecastData) => {
+            forecast(latitude, longitude, (error, forecastData) => {
                 if(error) console.log(error);
                 else{
-                    console.log(chalk.inverse.green.bold(data.location));
+                    console.log(chalk.inverse.green.bold(location));
                     console.log(chalk.inverse.bold(forecastData));
                 }
             })
@@ -101,3 +101,4 @@ const weather = (city) => {
 if(process.argv[2]){
     weather(process.argv[2]);
 }
+

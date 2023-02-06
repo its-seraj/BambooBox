@@ -1,0 +1,26 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    color: red;
+}
+h1, h2, h3, h4{
+    color: yellow;
+    text-shadow: 0 0 2px 4px #000;
+}
+.image{
+    padding: 0.5em;
+    box-shadow: 0 0 2px 0 #000;
+}
+img{
+    height: 20em;
+}
+
+footer{
+    padding: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
