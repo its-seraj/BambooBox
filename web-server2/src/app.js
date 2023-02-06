@@ -1,7 +1,9 @@
 const path = require('path')
 const express = require('express')
 const http = require('http');
-const hbs = require('hbs')
+const hbs = require('hbs');
+const { serialize } = require('v8');
+const { response } = require('express');
 
 const app = express();
 
@@ -39,11 +41,27 @@ app.get('/help', (req, res) => {
 
 // weather & about page
 app.get('/weather', (req, res) => {
-    const url = 'http://api.weatherstack.com/current?access_key=7fef760a3082832acf24d3d4299d7033&query=20,30';
-    let data = undefined;
+    let data = {};
+    
+    if(!req.query.address){
+        return res.send({
+            error: 'Please send an address parameter.'
+        })
+    }
+    const geo_url = 'http://api.mapbox.com/geocoding/v5/mapbox.places/' + req.query.address + '.json?access_token=pk.eyJ1Ijoic2VyYWoyNiIsImEiOiJjbGRvZGp3eWswOTBqM25xdmszZnlkeWZ6In0.-qlUmutN53yVZEJr1tuyfQ&limit=1'
+    const weather_url = 'http://api.weatherstack.com/current?access_key=7fef760a3082832acf24d3d4299d7033&query=20,30';
+
+    // call geolocation api
+    const requestGeo = http.request(geo_url, (responseGeo) => {
+        responseGeo.on('data', (chunk) => {
+            data.geolocation = JSON.parse(chunk.toString()).features[0];
+            return res.send(data);
+        })
+    })
+    requestGeo.end()
 
     // call weather api using http request
-    const request = http.request(url, (response) => {
+    const request = http.request(weather_url, (response) => {
         response.on('data', (chunk) => {
             data = JSON.parse(chunk.toString())
         })
@@ -70,6 +88,19 @@ app.get('/about', (req, res) => {
     res.send('<b>Welocme to about page.</b>')
 })
 
+
+app.get('/product', (req, res) => {
+    if(!req.query.search){
+        return res.send({
+            error: 'You must need to provide search term.'
+        })
+    }
+    console.log(req.query)
+
+    res.send({
+        product: []
+    })
+})
 
 // 404 page
 app.get('*', (req, res) => {

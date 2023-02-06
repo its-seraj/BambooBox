@@ -6,8 +6,17 @@
 body{
     color: red;
 }
+header{
+    padding: 1em;
+}
+header a{
+    padding: 0.2em;
+    margin: 0, 0em;
+    text-decoration: none;
+    font-weight: bold;
+}
 h1, h2, h3, h4{
-    color: yellow;
+    color: #444;
     text-shadow: 0 0 2px 4px #000;
 }
 .image{
