@@ -41,46 +41,75 @@ async function main() {
   console.log('Connected successfully to server');
   const db = client.db(dbName);
   const collection = db.collection('users');
-//   collection.insertOne({
-//         name: 'Andrew',
-//         age: 27,
-//     }, (error, result) => {
-//         if(error) return console.log('Unable to isert.')
+  //   collection.insertOne({
+  //         name: 'Andrew',
+  //         age: 27,
+  //     }, (error, result) => {
+  //         if(error) return console.log('Unable to isert.')
 
-//         console.log(result)
-//     })
-//     collection.insertMany([
-//         {
-//             name: 'Rehan',
-//             age: 21,
-//         },
-//         {
-//             name: 'Madhu',
-//             age: 22,
-//         }
-//     ], (error, result) => {
-//         if(error) return console.log('Unable to isert.')
+  //         console.log(result)
+  //     })
+  //     collection.insertMany([
+  //         {
+  //             name: 'Rehan',
+  //             age: 21,
+  //         },
+  //         {
+  //             name: 'Madhu',
+  //             age: 22,
+  //         }
+  //     ], (error, result) => {
+  //         if(error) return console.log('Unable to isert.')
 
-//         console.log(result)
-//     })
+  //         console.log(result)
+  //     })
 
-    const description = db.collection('description')
-    // description.insertMany([
-    //     {
-    //         description: 'Buy apple by evening',
-    //         completed: false
-    //     },
-    //     {
-    //         description: 'Meet with friend',
-    //         completed: true
-    //     },
-    //     {
-    //         description: 'Send an email to HR',
-    //         completed: false
-    //     }
-    // ])
+  const description = db.collection('description')
+  // description.insertMany([
+  //     {
+  //         description: 'Buy apple by evening',
+  //         completed: false
+  //     },
+  //     {
+  //         description: 'Meet with friend',
+  //         completed: true
+  //     },
+  //     {
+  //         description: 'Send an email to HR',
+  //         completed: false
+  //     }
+  // ])
 
-  // the following code examples can be pasted here...
+  // collection.findOne({ name: 'Andrew' }, (error, user) => {
+  //   if (error) {
+  //     return console.log('Unable to fetch.')
+  //   }
+
+  //   console.log(user)
+  // })
+  // collection.findOne({ _id: new ObjectID('63e237350b38332698253852') }, (error, user) => {
+  //   if (error) {
+  //     return console.log('Unable to fetch.')
+  //   }
+
+  //   console.log(user)
+  // })
+  // tasks
+  description.findOne({_id: new ObjectID('63e240c28f2d4c198085f679')}, (error, task) => {
+    if(error) return console.log('Unable to fetch.')
+
+    console.log(task)
+  })
+  description.find({completed: false}).toArray((error, arr) => {
+    if(error) return console.log('Unable to fetch')
+
+    console.log(arr)
+  })
+  description.find({completed: false}).count((error, count) => {
+    if(error) return console.log('Unable to count')
+
+    console.log(count)
+  })
 
   return 'done.';
 }
