@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
-
+const jwt = require('jsonwebtoken')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -34,9 +34,38 @@ const userSchema = new mongoose.Schema({
             // if(pass.length <= 6) throw new Error('Password must be at least 7 chars of length.')
             if(pass.toLowerCase().includes('password')) throw new Error('Password should not conatains password.')   
         }
+    },
+    tokens: [
+        {
+            token: {
+                type: String,
+                required: true
+            }
+        }
+    ],
+    avatar: {
+        type: Buffer
     }
 })
 
+userSchema.methods.toJSON = function(){
+    const userObj = this.toObject()
+    
+    delete userObj.password
+    delete userObj.tokens
+    delete userObj.avatar
+    
+    return userObj
+}
+
+userSchema.methods.generateAuthToken = async function () {
+    const token = await jwt.sign({_id: this._id.toString()}, process.env.JWT_SECRET)
+    
+    this.tokens = this.tokens.concat({token})
+    await this.save();
+
+    return token;
+}
 
 userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({email})
@@ -55,7 +84,7 @@ userSchema.pre('save', async function(next){
         // console.log('password changes')
         this.password = await bcrypt.hash(this.password, 8)
     }
-    console.log('pre call before save')
+    // console.log('pre call before save')
     
     next()
 })

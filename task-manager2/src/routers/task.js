@@ -29,7 +29,8 @@ router.get('/tasks', async(req, res) => {
     // })
 
     try{
-        const tasks = await Task.find({})
+        // const tasks = await Task.find({})
+        const tasks = req.user.populate('tasks').execPopulate()
         res.status(201).send(tasks)
     }catch(e){
         res.status(500).send(e)

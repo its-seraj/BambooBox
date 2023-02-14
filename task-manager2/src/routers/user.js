@@ -1,12 +1,33 @@
 const express = require('express')
 const router = new express.Router()
 const User = require('../models/user')
+const auth = require('../middleware/auth')
+const sendWelcomeEmail = require('../emails/account')
+const multer = require('multer')
+const upload = multer({
+    // dest: 'images/avatar',
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, cb){
+        // if(!file.originalname.endsWith('.jpg')){
+        if(!file.originalname.match(/\.(jpg|png|jpeg)$/)){
+            return cb(new Error('File must be an image.'))
+        }
+
+        cb(undefined, true)
+    }
+})
 
 router.get('/test', (req, res) => {
     res.send('Hello testing')
 })
 
-router.get('/users', async(req, res) => {
+router.get('/users/me', auth, async(req, res) => {
+    res.send(req.user);
+})
+
+router.get('/users', auth, async(req, res) => {
     // User.find({}).then((users) => {
     //     res.send(users)
     // }).catch((error) => {
@@ -21,8 +42,9 @@ router.get('/users', async(req, res) => {
     }
 })
 
+// for signup 
 router.post('/users', async(req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     const user = new User(req.body)
 
     // user.save().then(() => {
@@ -34,8 +56,11 @@ router.post('/users', async(req, res) => {
     // })
 
     try{
+        const token = await user.generateAuthToken(user)
+
         await user.save()
-        res.status(201).send(user)
+        sendWelcomeEmail(user.email, user.name) // send an email
+        res.status(201).send({user, token})
     }catch(error){
         res.status(500).send(error)
     }
@@ -89,13 +114,37 @@ router.patch('/user/:id', async(req, res) => {
 router.post('/user/login', async (req, res) => {
     try{
         const user = await User.findByCredentials(req.body.email, req.body.password)
+        // const token = await User.generateAuthToken(user);
+        const token = await user.generateAuthToken()
 
-        res.send(user)
+        res.send({user, token})
     }catch(e){
         res.status(400).send(e)
     }
 })
 
+router.post('/user/logout', auth, async (req, res) => {
+    try{
+        req.user.tokens = req.user.tokens.filter((token) => {
+            token.token !== req.token
+        })
+        await req.user.save();
+
+        res.send({'message': 'Successfully logout.'})
+    }catch(e){
+        res.status(500).send(e);
+    }
+})
+
+router.post('/user/logoutAll', auth, async (req, res) => {
+    try{
+        req.user.tokens = [];
+        await req.user.save();
+        res.send({'message': 'Successfully logout from all devices.'})
+    }catch(e){
+        res.status(500).send(e)
+    }
+})
 
 router.delete('/user/:id', async(req, res) => {
     try{
@@ -106,6 +155,46 @@ router.delete('/user/:id', async(req, res) => {
         res.send(user)
     }catch(e){
         res.status(400).send(e)
+    }
+})
+
+// upload user avatar
+router.post('/user/me/upload', auth, upload.single('avatar'), async (req, res) => {
+    req.user.avatar = req.file.buffer
+    await req.user.save()
+    res.send({
+        message: 'Avatar successfully uploaded.',
+        data: req.user
+    })
+}, (error, req, res, next) => {
+    res.status(400).send({
+        error: error.message
+    })
+})
+// delete avatar
+router.delete('/user/me/avatar', auth, async (req, res) => {
+    req.user.avatar = undefined
+    await req.user.save()
+
+    res.send({
+        message: 'Avatar successfully deleted.',
+        data: req.user
+    })
+})
+
+// view avatar
+router.get('/user/:id/avatar', async (req, res) => {
+    try{
+        const user = await User.findById({_id: req.params.id})
+        if(!user || !user.avatar){
+            throw new Error('Avatar not available.')
+        }
+
+        res.set('Content-Type', 'image/jpg')
+        res.send(user.avatar)
+        // res.send(`<img src="data:image/jpg;base64,${user.avatar} />`)
+    }catch(error){
+        res.status(400).send(error)
     }
 })
 
