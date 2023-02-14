@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="./css/chat.css">
+</head>
+
+<body>
+    <div id="myAlert" class="alert">This is an alert message.</div>
+
+    <div class="chatbox">
+        <div id="chatbody">
+            <div class="message">Hi there, how can I help you?</div>
+            <div class="message right">I have a question about my order</div>
+            <div class="message">Sure, what's your order number?</div>
+        </div>
+        <div class="message right">
+            <form id="form">
+                <input type="text" id="input_message" placeholder="Type Here..." />
+                <button id="location"><img src="./assets/location.png" alt="" srcset=""></button>
+                <button type="submit" id="send">Send</button>
+            </form>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/chat.js"></script>
+</body>
+
+</html>
