@@ -45,15 +45,41 @@ form.addEventListener('submit', (e) => {
 
 })
 
-socket.on('recieve-message', (message) => {
+const autoscroll = () => {
+    const newMessage = chatbody.lastElementChild
+
+    // calculate height
+    const newMessageStyles = getComputedStyle(newMessage)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = newMessage.offsetHeight + newMessageMargin
+
+    // visible height
+    const visibleHeight = chatbody.offsetHeight
+
+    // height of message container
+    const containerHeight = chatbody.scrollHeight
+
+    // how far have i scrolled
+    const scrollOffset = chatbody.scrollTop + visibleHeight
+
+    if(containerHeight - newMessageHeight <= scrollOffset){
+        chatbody.scrollTop = chatbody.scrollHeight
+    }
+
+    // console.log(newMessageStyles, newMessageHeight, newMessageMargin)
+}
+
+socket.on('recieve-message', (data) => {
     // chatbody.insertAdjacentHTML('beforeend', `<div class="message">${message}</div>`)
     const mustache_template = document.querySelector('#mustache-template').innerHTML
     const html = Mustache.render(mustache_template, {
-        message: message.text,
-        createdAt: moment(message.createdAt).format('h:mm A')
+        message: data.message.text,
+        username: data.username,
+        createdAt: moment(data.message.createdAt).format('h:mm A')
     })
 
     chatbody.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 socket.on('new-user', (message) => {
@@ -100,9 +126,29 @@ location_button.addEventListener('click', (e) => {
         })
     })
 })
-socket.on('location', (message) => {
+socket.on('location', ({message, username}) => {
     // return chatbody.insertAdjacentHTML('beforeend', `<div class="message">Latitude: ${message.latitude}, Longitude: ${message.longitude}</div>`)
     const mustache_template = document.querySelector("#mustache-location").innerHTML
-    const html = Mustache.render(mustache_template, {url: message.url, createdAt: moment(message.createdAt).format('h:mm A')})
-    return chatbody.insertAdjacentHTML('beforeend', html)
+    const html = Mustache.render(mustache_template, {url: message.url, createdAt: moment(message.createdAt).format('h:mm A'), username})
+    chatbody.insertAdjacentHTML('beforeend', html)
+    autoscroll();
+})
+
+const {name, room} = Qs.parse(location.search, {ignoreQueryPrefix: true})
+socket.emit('join', {name, room}, (error) => {
+    if(error){
+        alert(error)
+        location.href = '/'
+    }
+})
+
+socket.on('roomData', ({room, users}) => {
+    const template = document.querySelector('#mustache-sidebar').innerHTML
+    const html = Mustache.render(template, {room, users})
+
+    const sidebar = document.querySelector('.sidebar')
+    sidebar.innerHTML = html;
+
+    console.log(room)
+    console.log(users)
 })
