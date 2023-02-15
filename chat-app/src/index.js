@@ -2,6 +2,7 @@ const express = require('express')
 const http = require('http')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const {generateMessage, generateLocation} = require('./utils/messages')
 
 const app = express();
 const server = http.createServer(app)
@@ -33,7 +34,7 @@ io.on('connection', (socket) => {
         const filter = new Filter()
         if(filter.isProfane(message)) return cb('Profinity not allowed.')
 
-        io.emit('recieve-message', 'get : ' + message)
+        io.emit('recieve-message', generateMessage(message))
 
         cb()
     })
@@ -49,7 +50,7 @@ io.on('connection', (socket) => {
     // get and broadcast location
     socket.on('location-share', (message, cb) => {
         // console.log(message)
-        socket.broadcast.emit('location', message)
+        socket.broadcast.emit('location', generateLocation(message))
 
         cb();
     })

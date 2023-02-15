@@ -26,6 +26,11 @@ form.addEventListener('submit', (e) => {
     button.setAttribute('disabled', 'disabled')
 
     const message = input_message.value
+    if(!message){
+        button.removeAttribute('disabled') // enable button
+        input_message.focus()
+        return console.log('Pls Enter any message.')
+    }
     // console.log(message)
     
     socket.emit("send-message", message, (error) => {
@@ -41,7 +46,14 @@ form.addEventListener('submit', (e) => {
 })
 
 socket.on('recieve-message', (message) => {
-    chatbody.insertAdjacentHTML('afterEnd', `<div class="message">${message}</div>`)
+    // chatbody.insertAdjacentHTML('beforeend', `<div class="message">${message}</div>`)
+    const mustache_template = document.querySelector('#mustache-template').innerHTML
+    const html = Mustache.render(mustache_template, {
+        message: message.text,
+        createdAt: moment(message.createdAt).format('h:mm A')
+    })
+
+    chatbody.insertAdjacentHTML('beforeend', html)
 })
 
 socket.on('new-user', (message) => {
@@ -89,5 +101,8 @@ location_button.addEventListener('click', (e) => {
     })
 })
 socket.on('location', (message) => {
-    return chatbody.insertAdjacentHTML('afterEnd', `<div class="message">Latitude: ${message.latitude}, Longitude: ${message.longitude}</div>`)
+    // return chatbody.insertAdjacentHTML('beforeend', `<div class="message">Latitude: ${message.latitude}, Longitude: ${message.longitude}</div>`)
+    const mustache_template = document.querySelector("#mustache-location").innerHTML
+    const html = Mustache.render(mustache_template, {url: message.url, createdAt: moment(message.createdAt).format('h:mm A')})
+    return chatbody.insertAdjacentHTML('beforeend', html)
 })
