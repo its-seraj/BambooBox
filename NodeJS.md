@@ -7,7 +7,7 @@ npm init -y
 #### express
 
 ```
-const express = require('express)
+const express = require('express')
 
 const app = express()
 ```

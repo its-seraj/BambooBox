@@ -1,0 +1,39 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+form {
+    border: 2px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+input[type="file"] {
+    height: 100%;
+    width: 100%;
+    display: block;
+    border-radius: 5px;
+    padding: 10px 0;
+    color: #fff;
+    background-color: #aaa;
+}
+input[type="file"]::before{
+    content: "Choose any .csv file";
+    width: 100%;
+    text-align: center;
+}
+input[type="submit"]{
+    margin: 0.5em 0;
+    padding: 0.5em 1em;
+    outline: none;
+    border-radius: 5px;
+}
+
+.form-container{
+    margin: 0 auto;
+    height: 400px;
+    width: 400px;
+}
